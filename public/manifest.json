@@ -1,24 +1,40 @@
 {
-  "name": "Conexão UNK",
-  "short_name": "UNK",
-  "description": "Sistema de gerenciamento exclusivo para DJs UNK",
+  "name": "DJ UNK Management",
+  "short_name": "DJUNKApp",
+  "description": "Sistema de gerenciamento para DJs - Agenda, Projetos, Branding e mais",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1a1a",
+  "background_color": "#000000",
   "theme_color": "#1a1a1a",
   "orientation": "portrait-primary",
+  "scope": "/",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icon-512.png", 
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
+    }
+  ],
+  "categories": ["music", "productivity", "business"],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png", 
+      "sizes": "640x1280",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }
