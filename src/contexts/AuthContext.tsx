@@ -19,7 +19,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Carregar usuário na inicialização
     async function loadUser() {
       setLoading(true)
       try {
@@ -38,7 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     loadUser()
 
-    // Configurar listener de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null)
@@ -59,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('user_id, name, email, role')
         .eq('user_id', userId)
         .maybeSingle()
 
@@ -93,11 +91,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('Tentando atualizar perfil:', { user: user.id, updates })
 
     const { data, error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('user_id', user.id)
-      .select()
-      .maybeSingle()
+  .from('profiles')
+  .select(`
+    user_id,
+    name,
+    full_name,
+    email,
+    role,
+    phone,
+    bio,
+    location,
+    artist_name,
+    birth_date,
+    pix_key,
+    genres,
+    portfolio_url,
+    instagram_url,
+    youtube_url,
+    presskit_url,
+    music_links
+  `)
+  .eq('user_id', user)
+  .maybeSingle()
 
     if (error) {
       console.error('Erro ao atualizar perfil:', error)
@@ -114,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     user,
-    profile,
+    profile,   // 👈 role já está dentro do profile
     loading,
     signIn,
     signOut,

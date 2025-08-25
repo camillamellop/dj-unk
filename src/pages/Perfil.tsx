@@ -3,13 +3,14 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import BottomNavigation from '@/components/BottomNavigation';
+import { useNavigate } from 'react-router-dom';
+
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, profile, loading, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
-  // All hooks must be called before any conditional returns
+
   const initialData = useMemo(() => ({
     full_name: profile?.full_name || '',
     email: user?.email || '',
@@ -70,84 +71,100 @@ const ProfilePage: React.FC = () => {
   const handleInputChange = useCallback((field: string, value: string | any[]) => {
     setEditData(prev => ({ ...prev, [field]: value }));
   }, []);
-  
-  // Debug logging
-  useEffect(() => {
-    console.log('ProfilePage - Auth State:', { user, loading });
-  }, [user, loading]);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!loading && !user) {
-      console.log('ProfilePage - Redirecting to login (no user)');
-      navigate('/login');
-    }
-  }, [user, loading, navigate]);
-
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#100C1F] via-[#0D0A18] to-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-          <p className="text-xl">Carregando perfil...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <p>Carregando perfil...</p>
       </div>
     );
   }
 
-  // Show error state if no user
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#100C1F] via-[#0D0A18] to-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-xl text-red-400 mb-4">Usuário não autenticado</p>
-          <button 
-            onClick={() => navigate('/')}
-            className="px-6 py-3 bg-cyan-400 text-black rounded-full font-bold hover:bg-cyan-300 transition-colors"
-          >
-            Voltar ao Início
-          </button>
-        </div>
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <p>Usuário não autenticado</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#100C1F] via-[#0D0A18] to-black text-white pb-36 sm:pb-32 overflow-x-hidden profile-page">
-       <div className="p-2 sm:p-3 md:p-4 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10 mobile-header">
-          <button
-            onClick={() => navigate('/')}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors mobile-button"
-            title="Voltar"
-          >
-            <ArrowLeft size={16} className="sm:w-4 sm:h-4 md:w-5 md:h-5" />
-          </button>
-          <h1 className="text-base sm:text-lg md:text-xl font-bold">Perfil</h1>
-          <button
-            onClick={handleLogout}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors mobile-button"
-            title="Sair da conta"
-          >
-            <LogOut size={16} className="sm:w-4 sm:h-4 md:w-5 md:h-5" />
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-[#100C1F] via-[#0D0A18] to-black text-white pb-36">
+      <div className="p-4 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10">
+        <button
+          onClick={() => navigate('/')}
+          className="p-2 rounded-full bg-white/10 hover:bg-white/20"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-xl font-bold">Perfil</h1>
+        <button
+          onClick={handleLogout}
+          className="p-2 rounded-full bg-white/10 hover:bg-white/20"
+        >
+          <LogOut size={20} />
+        </button>
+      </div>
+
+      <div className="p-4 space-y-4">
+        <div>
+          <label className="block text-sm text-gray-400">Nome completo</label>
+          {isEditing ? (
+            <input
+              className="w-full p-2 rounded bg-white/10"
+              value={editData.full_name}
+              onChange={(e) => handleInputChange('full_name', e.target.value)}
+            />
+          ) : (
+            <p>{profile?.full_name || '-'}</p>
+          )}
         </div>
 
-      <div className="p-2 sm:p-3 md:p-4 space-y-3 sm:space-y-4 md:space-y-6 profile-content">
-        <UserProfileComponent 
-          profile={profile || {}}
-          user={user}
-          isEditing={isEditing}
-          isSaving={isSaving}
-          editData={editData}
-          onEdit={handleEdit}
-          onCancel={handleCancel}
-          onSave={handleSave}
-          onInputChange={handleInputChange}
-          updateProfile={updateProfile}
-        />
+        <div>
+          <label className="block text-sm text-gray-400">Email</label>
+          <p>{user.email}</p>
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-400">Bio</label>
+          {isEditing ? (
+            <textarea
+              className="w-full p-2 rounded bg-white/10"
+              value={editData.bio}
+              onChange={(e) => handleInputChange('bio', e.target.value)}
+            />
+          ) : (
+            <p>{profile?.bio || '-'}</p>
+          )}
+        </div>
+
+        {isEditing ? (
+          <div className="flex gap-2">
+            <button
+              disabled={isSaving}
+              onClick={handleSave}
+              className="px-4 py-2 bg-cyan-500 rounded"
+            >
+              {isSaving ? 'Salvando...' : 'Salvar'}
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 bg-gray-500 rounded"
+            >
+              Cancelar
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleEdit}
+            className="px-4 py-2 bg-cyan-500 rounded"
+          >
+            Editar Perfil
+          </button>
+        )}
       </div>
-  <BottomNavigation />
+
+      <BottomNavigation />
     </div>
   );
 };
