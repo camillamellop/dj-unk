@@ -552,9 +552,11 @@ const ProjetosImproved: React.FC = () => {
                               <Edit size={12} />
                             </button>
                             <button
-                              onClick={() => handleDelete('tasks', task.id)}
-                             onClick={() => handleDelete('tarefas', task.id)}
+                              onClick={() =>{handleDelete('tasks', task.id)
+                                handleDelete('tarefas', task.id)
+                              }}
                               className="p-1.5 rounded-full bg-red-500/20 hover:bg-red-500/30 transition-colors text-red-400"
+
                             >
                               <Trash2 size={12} />
                             </button>

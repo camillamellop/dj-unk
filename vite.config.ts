@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { VitePWA, VitePWAOptions } from 'vite-plugin-pwa';
 
-// Configuração do PWA com tipos seguros
 const pwaConfig: Partial<VitePWAOptions> = {
   registerType: 'autoUpdate',
   includeAssets: ['favicon.ico', 'icon-192x192.png', 'icon-512x512.png'],
@@ -44,15 +43,10 @@ const pwaConfig: Partial<VitePWAOptions> = {
           cacheName: 'supabase-cache',
           expiration: {
             maxEntries: 100,
-            maxAgeSeconds: 60 * 60 * 24, // 24 horas
+            maxAgeSeconds: 60 * 60 * 24, // 24h
           },
-          cacheKeyWillBeUsed: async ({ request }) => {
-            // Não cache requests com authorization header
-            const authHeader = request.headers.get('authorization');
-            if (authHeader) {
-              return `${request.url}-${Date.now()}`;
-            }
-            return request.url;
+          cacheableResponse: {
+            statuses: [0, 200],
           },
         },
       },
@@ -81,13 +75,15 @@ const pwaConfig: Partial<VitePWAOptions> = {
     ],
   },
   devOptions: {
-    enabled: false, // Desabilita PWA em dev para melhor performance
+    enabled: false,
   },
 };
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), VitePWA(pwaConfig)],
+  plugins: [
+    react(),
+    ...(process.env.NODE_ENV === 'production' ? [VitePWA(pwaConfig)] : []),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -96,7 +92,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
-    cors: true,
+    cors: false,
     headers: {
       'Cross-Origin-Embedder-Policy': 'credentialless',
     },
@@ -114,7 +110,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id: string) => {
-          // Chunking mais inteligente baseado no caminho do módulo
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom')) {
               return 'react-vendor';
@@ -128,22 +123,11 @@ export default defineConfig({
             if (id.includes('@radix-ui')) {
               return 'ui-components';
             }
-            if (id.includes('lucide-react')) {
-              return 'icons';
-            }
             return 'vendor';
           }
-
-          // Chunks baseados na estrutura do projeto
-          if (id.includes('src/components')) {
-            return 'components';
-          }
-          if (id.includes('src/hooks') || id.includes('src/utils')) {
-            return 'utils';
-          }
-          if (id.includes('src/pages')) {
-            return 'pages';
-          }
+          if (id.includes('src/components')) return 'components';
+          if (id.includes('src/hooks') || id.includes('src/utils')) return 'utils';
+          if (id.includes('src/pages')) return 'pages';
         },
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
@@ -154,7 +138,6 @@ export default defineConfig({
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name?.split('.') ?? [];
           const extType = info[info.length - 1];
-
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType ?? '')) {
             return `img/[name]-[hash][extname]`;
           }
@@ -169,24 +152,16 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000,
-    reportCompressedSize: false, // Melhora performance do build
+    reportCompressedSize: false,
   },
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      '@supabase/supabase-js',
-      'lucide-react',
-    ],
+    include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js', 'lucide-react'],
     exclude: ['@vite/client', '@vite/env'],
   },
   define: {
-    // Otimização para produção
     __DEV__: process.env.NODE_ENV === 'development',
   },
   esbuild: {
-    // Remove console.logs em produção
     drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
 });

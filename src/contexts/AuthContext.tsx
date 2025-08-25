@@ -38,10 +38,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setUser(session?.user || null)
         if (session?.user) {
-          loadProfile(session.user.id)
+          await loadProfile(session.user.id)
         } else {
           setProfile(null)
         }
@@ -57,7 +57,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, name, email, role')
+        .select(`
+          user_id,
+          name,
+          full_name,
+          email,
+          role,
+          phone,
+          bio,
+          location,
+          artist_name,
+          birth_date,
+          pix_key,
+          genres,
+          portfolio_url,
+          instagram_url,
+          youtube_url,
+          presskit_url,
+          music_links
+        `)
         .eq('user_id', userId)
         .maybeSingle()
 
@@ -90,46 +108,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     console.log('Tentando atualizar perfil:', { user: user.id, updates })
 
-    const { data, error } = await supabase
-  .from('profiles')
-  .select(`
-    user_id,
-    name,
-    full_name,
-    email,
-    role,
-    phone,
-    bio,
-    location,
-    artist_name,
-    birth_date,
-    pix_key,
-    genres,
-    portfolio_url,
-    instagram_url,
-    youtube_url,
-    presskit_url,
-    music_links
-  `)
-  .eq('user_id', user)
-  .maybeSingle()
+    try {
+      // Primeiro, atualiza o perfil no banco
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('user_id', user.id)
+        .select(`
+          user_id,
+          name,
+          full_name,
+          email,
+          role,
+          phone,
+          bio,
+          location,
+          artist_name,
+          birth_date,
+          pix_key,
+          genres,
+          portfolio_url,
+          instagram_url,
+          youtube_url,
+          presskit_url,
+          music_links
+        `)
+        .single()
 
-    if (error) {
+      if (error) {
+        console.error('Erro ao atualizar perfil:', error)
+        throw error
+      }
+
+      if (data) {
+        console.log('Perfil atualizado com sucesso:', data)
+        setProfile(data)
+      }
+    } catch (error) {
       console.error('Erro ao atualizar perfil:', error)
       throw error
-    }
-
-    if (data) {
-      console.log('Perfil atualizado com sucesso:', data)
-      setProfile(data)
-    } else {
-      console.log('Nenhum dado retornado da atualização')
     }
   }
 
   const value = {
     user,
-    profile,   // 👈 role já está dentro do profile
+    profile,
     loading,
     signIn,
     signOut,
