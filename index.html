@@ -2,45 +2,58 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    
-    <!-- Viewport e responsividade -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
-    <!-- Meta tags básicas -->
-    <meta name="description" content="Sistema de gerenciamento exclusivo para DJs UNK - Gerencie sua agenda, projetos, finanças e muito mais" />
-    <meta name="keywords" content="DJ, música, agenda, projetos, finanças, UNK, conexão" />
-    <meta name="author" content="Conexão UNK" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DJ UNK Management</title>
     
     <!-- PWA Meta Tags -->
+    <meta name="description" content="Sistema de gerenciamento para DJs - Agenda, Projetos, Branding e mais" />
     <meta name="theme-color" content="#1a1a1a" />
-    <meta name="application-name" content="Conexão UNK" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="UNK" />
-    <meta name="apple-mobile-web-app-orientation" content="portrait" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="msapplication-TileColor" content="#1a1a1a" />
-    <meta name="msapplication-tap-highlight" content="no" />
-    <meta name="msapplication-navbutton-color" content="#1a1a1a" />
+    <meta name="apple-mobile-web-app-title" content="DJUNKApp" />
     
-    <!-- Prevent zoom on input focus (iOS Safari) -->
-    <meta name="format-detection" content="telephone=no" />
-    
-    <!-- Manifest -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- Icons -->
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192x192.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
     
-    <title>Conexão UNK</title>
+    <!-- Preconnect para melhor performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="DJ UNK Management" />
+    <meta property="og:description" content="Sistema completo de gerenciamento para DJs profissionais" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://v0-djunkmain1.vercel.app" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DJ UNK Management" />
+    <meta name="twitter:description" content="Sistema completo de gerenciamento para DJs profissionais" />
+    <meta name="twitter:image" content="/twitter-image.png" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registrado com sucesso:', registration);
+            })
+            .catch((registrationError) => {
+              console.log('Falha ao registrar SW:', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
