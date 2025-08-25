@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*\\.(js|jsx|ts|tsx|css|json)$)",
+      "headers": {
+        "Content-Type": "application/javascript; charset=utf-8"
+      }
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|jsx|ts|tsx)$)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "app/api/**.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
